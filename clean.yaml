@@ -13,6 +13,7 @@
       ansible_ssh_user: root
       groups:
         - engine
+    changed_when: False
 
 - name:  Remove vm on engine
   hosts: engine
