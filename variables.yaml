@@ -1,0 +1,34 @@
+sat_cachetimeout: 6000
+sat_url_newhost: "{{ sat_server_url }}/api/hosts"
+template:
+  name: templaterh8
+  organization_name: "Lab SPA"
+  location_name: "Italy"
+  hostgroup_id: 1
+  ip: 192.168.201.219
+  mac: 52:54:00:d3:26:0f
+  host_parameters_attributes:
+  - name: system_disk
+    parameter_type: string
+    value: "/dev/sda"
+  comment: Added via ansible
+  build: true
+  enabled: true
+  provision_method: build
+  managed: true
+engine_template:
+  name: "{{ template.name }}"
+  ballooning_enabled: True
+  memory: 2GiB
+  cpu_cores: 2
+  cluster: Default
+  disk_interface: virtio_scsi
+  disk_size: 20GiB
+  disk_format: cow
+  disk_sparse: True
+  disk_bootable: True
+  storage_domain: hosted_storage
+  nic_name: nic1
+  nic_interface: virtio
+  nic_mac_address: "{{ template.mac }}"
+  nic_network: ovirtmgmt

@@ -1,0 +1,52 @@
+- name: Template Provisioning
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  - name: Satellite - Create New Host
+    tags: newvm
+    local_action: uri
+    args:
+      url: "{{ sat_url_newhost }}"
+      user: "{{ sat_username }}"
+      password: "{{ sat_password }}"
+      force_basic_auth: true
+      return_content: true
+      validate_certs: false
+      body_format: json
+      method: POST
+      body: 
+        host: "{{ template }}"
+      status_code: 
+      - 201
+      - 422
+    changed_when: host_create.status == 201
+    failed_when:
+    - host_create.status != 201
+    - host_create.status != 422
+    - host_create.json.error.errors.name[0] != "has already been taken"
+    register: host_create
+
+  #- name: Power Up New Host
+  #  tags: powerup
+  #  local_action: uri
+  #  args:
+  #    url: "{{ sat_url_newhost }}/{{ host_create.json.id }}/power"
+  #    user: "{{ sat_username }}"
+  #    password: "{{ sat_password }}"
+  #    force_basic_auth: true
+  #    return_content: true
+  #    validate_certs: false
+  #    body_format: json
+  #    method: PUT
+  #    body:
+  #      power_action: start
+  #  register: host_powerup
+  #  retries: 20
+  #  until: 'host_powerup.status == 200'
+  #  delay: 5
+  #  when:
+  #  - '"id" in host_create.json'

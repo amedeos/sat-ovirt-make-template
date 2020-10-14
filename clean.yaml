@@ -1,0 +1,72 @@
+- name: Template Cleaning
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  - name: Add engine group-host
+    add_host:
+      name: "{{ engine_n }}"
+      #ansible_ssh_private_key_file: ansible-ssh/id_rsa
+      ansible_ssh_user: root
+      groups:
+        - engine
+
+- name:  Remove vm on engine
+  hosts: engine
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  - name: Create auth
+    ovirt_auth:
+      url: "https://{{ engine_n }}/ovirt-engine/api"
+      username: "{{ engine_user }}"
+      password: "{{ engine_password }}"
+      insecure: True
+
+  - name: Ensure vm is not present
+    ovirt_vm:
+      name: "{{ engine_template.name }}"
+      state: absent
+      cluster: "{{ engine_template.cluster }}"
+      auth: "{{ ovirt_auth }}"
+
+- name: Remove host on Satellite
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  
+  - name: Search host in Satellite
+    local_action: uri
+    args:
+      url: "{{ sat_url_newhost }}/?search={{ template.name }}"
+      user: "{{ sat_username }}"
+      password: "{{ sat_password }}"
+      force_basic_auth: true
+      return_content: true
+      validate_certs: false
+      body_format: json
+      method: GET
+    register: json_response
+
+  - name: Satellite - Delete host
+    local_action: uri
+    args:
+      url: "{{ sat_url_newhost }}/{{ json_response.json['results'][0]['id'] }}"
+      user: "{{ sat_username }}"
+      password: "{{ sat_password }}"
+      force_basic_auth: true
+      return_content: true
+      validate_certs: false
+      body_format: json
+      method: DELETE
+    when: json_response.json['results'][0]['mac'] is defined and json_response.json['results'][0]['mac'] == template.mac
+    register: json_delete
+
