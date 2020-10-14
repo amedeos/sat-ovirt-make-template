@@ -18,6 +18,7 @@ template:
   managed: true
 engine_template:
   name: "{{ template.name }}"
+  templatename: "{{ template.name }}-1"
   ballooning_enabled: True
   memory: 2GiB
   cpu_cores: 2

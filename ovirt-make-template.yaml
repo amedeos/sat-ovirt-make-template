@@ -1,0 +1,52 @@
+- name: Template Provisioning
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  - name: Add engine group-host
+    add_host:
+      name: "{{ engine_n }}"
+      #ansible_ssh_private_key_file: ansible-ssh/id_rsa
+      ansible_ssh_user: root
+      groups:
+        - engine
+
+- name:  Prepare Template on engine
+  hosts: engine
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  - name: Create auth
+    ovirt_auth:
+      url: "https://{{ engine_n }}/ovirt-engine/api"
+      username: "{{ engine_user }}"
+      password: "{{ engine_password }}"
+      insecure: True
+
+  - name: Shut down vm
+    ovirt_vm:
+      name: "{{ engine_template.name }}"
+      state: stopped
+      auth: "{{ ovirt_auth }}"
+
+  - name: Wait for power state
+    ovirt_vm_info:
+      auth: "{{ ovirt_auth }}"
+      pattern: "name={{ engine_template.name }} cluster={{ engine_template.cluster }}"
+    register: vm
+    retries: 10
+    until: vm.ovirt_vms[0].status == "down"
+    delay: 5
+
+  - name: Make Template
+    ovirt_template:
+      auth: "{{ ovirt_auth }}"
+      cluster: "{{ engine_template.cluster }}"
+      name: "{{ engine_template.templatename }}"
+      vm: "{{ engine_template.name }}"
+      cpu_profile: Default
+      description: Template RHEL8

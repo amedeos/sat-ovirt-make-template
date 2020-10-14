@@ -33,3 +33,13 @@
       owner: root
       group: root
       mode: '0644'
+
+  - name: Check virtualization host
+    shell: |
+      systemd-detect-virt
+    register: hypervisor
+
+  - name: Simple touch file for kvm
+    shell: |
+      touch /tmp/hostiskvm
+    when: hypervisor.stdout == "kvm"

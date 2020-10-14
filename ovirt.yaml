@@ -51,9 +51,13 @@
       operating_system: rhel_8x64
       auth: "{{ ovirt_auth }}"
 
+  - name: Create new suffix for disk
+    shell: date +%Y%m%d%H%M%S
+    register: date_disk
+
   - name: Create boot disk
     ovirt_disk:
-      name: "{{ engine_template.name }}_boot"
+      name: "{{ engine_template.name }}_boot_{{ date_disk.stdout }}"
       vm_name: "{{ engine_template.name }}"
       interface: "{{ engine_template.disk_interface }}"
       format: "{{ engine_template.disk_format }}"
