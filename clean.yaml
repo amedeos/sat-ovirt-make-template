@@ -6,6 +6,15 @@
     - variables-vault.yaml
     - variables.yaml
   tasks:
+  - name: Remove ssh known hosts
+    known_hosts:
+      name: "{{ item.1 }}"
+      path: "{{ item.0 }}"
+      state: absent
+    with_nested:
+      - [ '~/.ssh/known_hosts']
+      - [ '{{ template.ip }}', '{{ engine_template.name }}' ]
+
   - name: Add engine group-host
     add_host:
       name: "{{ engine_n }}"

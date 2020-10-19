@@ -38,8 +38,32 @@
     shell: |
       systemd-detect-virt
     register: hypervisor
+    changed_when: False
 
-  - name: Simple touch file for kvm
-    shell: |
-      touch /tmp/hostiskvm
+  - name: Install packages for RHV
+    dnf:
+      name:
+        - cloud-init
+        - qemu-guest-agent
+      state: present
     when: hypervisor.stdout == "kvm"
+
+  - name: Install common packages
+    dnf:
+      name:
+        - bash-completion
+        - vim-enhanced
+        - tmux
+      state: present
+
+  - name: Ensure qemu-guest-agent is enabled
+    systemd:
+      name: qemu-guest-agent
+      enabled: True
+    when: hypervisor.stdout == "kvm"
+
+  - name: Disable firewalld
+    systemd:
+      name: firewalld
+      enabled: False
+      state: stopped
