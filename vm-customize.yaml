@@ -67,3 +67,8 @@
       name: firewalld
       enabled: False
       state: stopped
+
+  - name: Disable SELinux
+    selinux:
+      state: disabled
+      configfile: /etc/sysconfig/selinux
