@@ -30,6 +30,13 @@
     - host_create.json.error.errors.name[0] != "has already been taken"
     register: host_create
 
+  - name: Generate hosts-templaterhv file
+    copy:
+      dest: hosts-templaterhv
+      content: |
+        [templaterhv]
+        templaterh8 ansible_ssh_host={{ template.ip }} ansible_ssh_user=root ansible_password={{ vm_password }}
+
   #- name: Power Up New Host
   #  tags: powerup
   #  local_action: uri

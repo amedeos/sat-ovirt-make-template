@@ -1,0 +1,42 @@
+packages_to_remove:
+  - tcpdump
+  - nmap
+  - wireshark
+  - dhcp
+  - telnet
+  - gcc-c++
+  - gcc-fortran
+  - gcc-java
+  - rsh
+  - tftp
+  - tftpd
+  - vsftpd
+  - nmap-ncat
+  - ypbind
+  - openldap-clients
+  - xinetd
+  - setroubleshoot
+services_to_disable:
+  - autofs
+  - rsyncd
+  - snmpd
+  - squid
+  - smb
+  - dovecot
+  - httpd
+  - vsftpd
+  - named
+  - nfs
+  - rpcbind
+  - slapd
+  - dhcpd
+  - cups
+  - ypserv
+  - avahi-daemon
+  - rhnsd
+kernel_modules_to_disable:
+  - usb-storage
+  - dccp
+  - sctp
+  - rds
+  - tipc

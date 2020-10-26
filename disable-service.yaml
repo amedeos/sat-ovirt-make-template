@@ -1,0 +1,13 @@
+---
+  - name: "Check service {{ item }}"
+    shell: "systemctl show {{ item }} | grep LoadState | cut -d = -f 2"
+    register: service_status
+    changed_when: no
+
+  - name: "Disable service {{ item }}"
+    systemd:
+      name: "{{ item }}"
+      enabled: False
+    when:
+      - service_status.stdout == "loaded"
+

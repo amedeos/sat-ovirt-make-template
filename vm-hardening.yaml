@@ -1,0 +1,41 @@
+- name: Template Customization
+  hosts: templaterhv
+  become: false
+  gather_facts: True
+  vars_files:
+    - variables-vault.yaml
+    - variables-hardening.yaml
+    - variables.yaml
+  tasks:
+  - name: Ensure packages are not present
+    dnf:
+      name: "{{ packages_to_remove }}"
+      state: absent
+
+  - name: Disable services
+    include_tasks: disable-service.yaml
+    loop: "{{ services_to_disable }}"
+
+  - name: Disable kernel modules
+    include_tasks: disable-kernel-module.yaml
+    loop: "{{ kernel_modules_to_disable }}"
+
+  - name: Configure chrony.conf
+    template:
+      dest: /etc/chrony.conf
+      src: templates/etc/chrony.conf
+      owner: root
+      group: root
+      backup: True
+      mode: '0644'
+
+  - name: Ensure chronyd is enabled
+    systemd:
+      name: chronyd
+      enabled: True
+
+  - name: Remove X Window system
+    shell: |
+      dnf remove -y xorg-x11*
+    changed_when: False
+

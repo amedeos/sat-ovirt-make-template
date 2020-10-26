@@ -72,3 +72,13 @@
     selinux:
       state: disabled
       configfile: /etc/sysconfig/selinux
+
+  - name: Set history date time
+    copy:
+      dest: /etc/profile.d/history.sh
+      owner: root
+      group: root
+      mode: '0644'
+      content: |
+        export HISTTIMEFORMAT='%F %T  '
+

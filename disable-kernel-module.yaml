@@ -1,0 +1,9 @@
+---
+  - name: "Disable kernel module {{ item }}"
+    copy:
+      dest: "/etc/modprobe.d/cis-{{ item }}.conf"
+      owner: root
+      group: root
+      mode: '0644'
+      content: |
+        install {{ item }} /bin/true
