@@ -42,18 +42,19 @@
 
   - name: Install packages for RHV
     dnf:
-      name:
-        - cloud-init
-        - qemu-guest-agent
+      name: "{{ packages_to_install_rhv }}"
       state: present
     when: hypervisor.stdout == "kvm"
 
+  - name: Install packages for VMware
+    dnf:
+      name: "{{ packages_to_install_vmware }}"
+      state: present
+    when: hypervisor.stdout == "vmware"
+
   - name: Install common packages
     dnf:
-      name:
-        - bash-completion
-        - vim-enhanced
-        - tmux
+      name: "{{ packages_to_install }}"
       state: present
 
   - name: Ensure qemu-guest-agent is enabled
@@ -61,6 +62,12 @@
       name: qemu-guest-agent
       enabled: True
     when: hypervisor.stdout == "kvm"
+
+  - name: Ensure vmtoolsd is enabled
+    systemd:
+      name: vmtoolsd
+      enabled: True
+    when: hypervisor.stdout == "vmware"
 
   - name: Disable firewalld
     systemd:

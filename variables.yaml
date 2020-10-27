@@ -33,3 +33,12 @@ engine_template:
   nic_interface: virtio
   nic_mac_address: "{{ template.mac }}"
   nic_network: ovirtmgmt
+packages_to_install:
+  - bash-completion
+  - tmux
+  - vim-enhanced
+packages_to_install_rhv:
+  - cloud-init
+  - qemu-guest-agent
+packages_to_install_vmware:
+  - open-vm-tools
