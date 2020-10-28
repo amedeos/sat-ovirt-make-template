@@ -75,10 +75,15 @@
       enabled: False
       state: stopped
 
-  - name: Disable SELinux
+  - name: Disable SELinux - sysconfig
     selinux:
       state: disabled
       configfile: /etc/sysconfig/selinux
+
+  - name: Disable SELinux - selinux
+    selinux:
+      state: disabled
+      configfile: /etc/selinux/config
 
   - name: Set history date time
     copy:
