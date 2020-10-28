@@ -37,9 +37,9 @@ run_cis () {
         exit ${STATUS}
     fi
     cd ..
-    #if [ -d CISPRJ ]; then
-    #    rm -rf CISPRJ
-    #fi
+    if [ -d CISPRJ ]; then
+        rm -rf CISPRJ
+    fi
 }
 
 PLAYBOOKS=(clean.yaml satellite.yaml ovirt.yaml vm-customize.yaml vm-hardening.yaml )
