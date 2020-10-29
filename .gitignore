@@ -1,5 +1,6 @@
 vault-file
 *.swp
 hosts-templaterhv
+hosts-templatevmware
 CISPRJ
 log-cis.log

@@ -53,7 +53,7 @@
     - variables.yaml
   tasks:
   
-  - name: Search host in Satellite
+  - name: Search host in Satellite - rhv
     local_action: uri
     args:
       url: "{{ sat_url_newhost }}/?search={{ template.name }}"
@@ -64,12 +64,12 @@
       validate_certs: false
       body_format: json
       method: GET
-    register: json_response
+    register: json_response_rhv
 
-  - name: Satellite - Delete host
+  - name: Satellite - Delete host rhv
     local_action: uri
     args:
-      url: "{{ sat_url_newhost }}/{{ json_response.json['results'][0]['id'] }}"
+      url: "{{ sat_url_newhost }}/{{ json_response_rhv.json['results'][0]['id'] }}"
       user: "{{ sat_username }}"
       password: "{{ sat_password }}"
       force_basic_auth: true
@@ -77,6 +77,33 @@
       validate_certs: false
       body_format: json
       method: DELETE
-    when: json_response.json['results'][0]['mac'] is defined and json_response.json['results'][0]['mac'] == template.mac
-    register: json_delete
+    when: json_response_rhv.json['results'][0]['mac'] is defined and json_response_rhv.json['results'][0]['mac'] == template.mac
+    register: json_delete_rhv
+
+  - name: Search host in Satellite - VMware
+    local_action: uri
+    args:
+      url: "{{ sat_url_newhost }}/?search={{ template_vmware.name }}"
+      user: "{{ sat_username }}"
+      password: "{{ sat_password }}"
+      force_basic_auth: true
+      return_content: true
+      validate_certs: false
+      body_format: json
+      method: GET
+    register: json_response_vmware
+
+  - name: Satellite - Delete host VMware
+    local_action: uri
+    args:
+      url: "{{ sat_url_newhost }}/{{ json_response_vmware.json['results'][0]['id'] }}"
+      user: "{{ sat_username }}"
+      password: "{{ sat_password }}"
+      force_basic_auth: true
+      return_content: true
+      validate_certs: false
+      body_format: json
+      method: DELETE
+    when: json_response_vmware.json['results'][0]['mac'] is defined and json_response_vmware.json['results'][0]['mac'] == template_vmware.mac
+    register: json_delete_vmware
 

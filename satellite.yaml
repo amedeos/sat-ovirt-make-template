@@ -6,7 +6,7 @@
     - variables-vault.yaml
     - variables.yaml
   tasks:
-  - name: Satellite - Create New Host
+  - name: Satellite - Create New Host for rhv
     tags: newvm
     local_action: uri
     args:
@@ -18,42 +18,54 @@
       validate_certs: false
       body_format: json
       method: POST
-      body: 
+      body:
         host: "{{ template }}"
-      status_code: 
+      status_code:
       - 201
       - 422
-    changed_when: host_create.status == 201
+    changed_when: host_create_rhv.status == 201
     failed_when:
-    - host_create.status != 201
-    - host_create.status != 422
-    - host_create.json.error.errors.name[0] != "has already been taken"
-    register: host_create
+    - host_create_rhv.status != 201
+    - host_create_rhv.status != 422
+    - host_create_rhv.json.error.errors.name[0] != "has already been taken"
+    register: host_create_rhv
+
+  - name: Satellite - Create New Host for VMware
+    tags: newvm
+    local_action: uri
+    args:
+      url: "{{ sat_url_newhost }}"
+      user: "{{ sat_username }}"
+      password: "{{ sat_password }}"
+      force_basic_auth: true
+      return_content: true
+      validate_certs: false
+      body_format: json
+      method: POST
+      body:
+        host: "{{ template_vmware }}"
+      status_code:
+      - 201
+      - 422
+    changed_when: host_create_vmware.status == 201
+    failed_when:
+    - host_create_vmware.status != 201
+    - host_create_vmware.status != 422
+    - host_create_vmware.json.error.errors.name[0] != "has already been taken"
+    register: host_create_vmware
+
 
   - name: Generate hosts-templaterhv file
     copy:
       dest: hosts-templaterhv
       content: |
         [templaterhv]
-        templaterh8 ansible_ssh_host={{ template.ip }} ansible_ssh_user=root ansible_password={{ vm_password }}
+        {{ template.name }} ansible_ssh_host={{ template.ip }} ansible_ssh_user=root ansible_password={{ vm_password }}
 
-  #- name: Power Up New Host
-  #  tags: powerup
-  #  local_action: uri
-  #  args:
-  #    url: "{{ sat_url_newhost }}/{{ host_create.json.id }}/power"
-  #    user: "{{ sat_username }}"
-  #    password: "{{ sat_password }}"
-  #    force_basic_auth: true
-  #    return_content: true
-  #    validate_certs: false
-  #    body_format: json
-  #    method: PUT
-  #    body:
-  #      power_action: start
-  #  register: host_powerup
-  #  retries: 20
-  #  until: 'host_powerup.status == 200'
-  #  delay: 5
-  #  when:
-  #  - '"id" in host_create.json'
+  - name: Generate hosts-templatevmware file
+    copy:
+      dest: hosts-templatevmware
+      content: |
+        [templatevmware]
+        {{ template_vmware.name }} ansible_ssh_host={{ template_vmware.ip }} ansible_ssh_user=root ansible_password={{ vm_password }}
+

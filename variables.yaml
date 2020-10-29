@@ -16,6 +16,22 @@ template:
   enabled: true
   provision_method: build
   managed: true
+template_vmware:
+  name: templatevmwarerh8
+  organization_name: "Lab SPA"
+  location_name: "Italy"
+  hostgroup_id: 1
+  ip: 192.168.201.218
+  mac: 52:54:00:d3:26:ff
+  host_parameters_attributes:
+  - name: system_disk
+    parameter_type: string
+    value: "/dev/sda"
+  comment: Added via ansible
+  build: true
+  enabled: true
+  provision_method: build
+  managed: true
 engine_template:
   name: "{{ template.name }}"
   templatename: "{{ template.name }}-1"
