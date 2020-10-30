@@ -1,0 +1,64 @@
+- name: Template Cleaning on VMware
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  - name: Remove ssh known hosts
+    known_hosts:
+      name: "{{ item.1 }}"
+      path: "{{ item.0 }}"
+      state: absent
+    with_nested:
+      - [ '~/.ssh/known_hosts']
+      - [ '{{ template_vmware.ip }}', '{{ engine_template.name }}' ]
+
+  - name: Remove the VM on vCenter
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: False
+      name: "{{ vmware_template.name }}"
+      state: absent
+      folder: "{{ vmware_template.folder }}"
+      datacenter: "{{ vmware_template.datacenter }}"
+    register: remove_vm
+
+- name: Remove host on Satellite
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  - name: Search host in Satellite - VMware
+    local_action: uri
+    args:
+      url: "{{ sat_url_newhost }}/?search={{ template_vmware.name }}"
+      user: "{{ sat_username }}"
+      password: "{{ sat_password }}"
+      force_basic_auth: true
+      return_content: true
+      validate_certs: false
+      body_format: json
+      method: GET
+    register: json_response_vmware
+
+  - name: Satellite - Delete host VMware
+    local_action: uri
+    args:
+      url: "{{ sat_url_newhost }}/{{ json_response_vmware.json['results'][0]['id'] }}"
+      user: "{{ sat_username }}"
+      password: "{{ sat_password }}"
+      force_basic_auth: true
+      return_content: true
+      validate_certs: false
+      body_format: json
+      method: DELETE
+    when: json_response_vmware.json['results'][0]['mac'] is defined and json_response_vmware.json['results'][0]['mac'] == template_vmware.mac
+    register: json_delete_vmware
+
