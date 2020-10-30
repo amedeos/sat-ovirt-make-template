@@ -1,0 +1,86 @@
+- name: Create an start VM on VMware
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+  - name: Create the VM on vCenter
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: False
+      name: "{{ vmware_template.name }}"
+      state: present
+      guest_id: "{{ vmware_template.guest_id }}"
+      folder: "{{ vmware_template.folder }}"
+      datacenter: "{{ vmware_template.datacenter }}"
+      disk:
+      - size_gb: "{{ disk_size_gb }}"
+        type: "{{ disk_type }}"
+        datastore: "{{ disk_datastore }}"
+      hardware:
+        memory_mb: "{{ vmware_template.memory_mb }}"
+        num_cpus: "{{ vmware_template.num_cpus }}"
+        scsi: "{{ vmware_template.scsi }}"
+      networks:
+      - name: "{{ vmware_template.networks_name }}"
+        mac: "{{ vmware_template.networks_mac }}"
+        device_type: "{{ vmware_template.networks_device_type }}"
+    register: create_vm
+
+  - name: Change boot parameters
+    vmware_guest_boot_manager:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: False
+      name: "{{ vmware_template.name }}"
+      boot_firmware: bios
+      secure_boot_enabled: False
+      boot_delay: 2000
+      boot_order:
+        - disk
+        - ethernet
+    register: boot_vm_order
+
+  - name: Start the vm
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: False
+      name: "{{ vmware_template.name }}"
+      state: poweredon
+      folder: "{{ vmware_template.folder }}"
+      datacenter: "{{ vmware_template.datacenter }}"
+    register: start_vm
+
+  - name: Add vm host
+    add_host:
+      name: "{{ vmware_template.name }}"
+      ansible_ssh_user: root
+      ansible_password: "{{ vm_password }}"
+      ansible_ssh_host: "{{ template_vmware.ip }}"
+      groups:
+        - templatevmware
+
+- name: Wait for the vm to be online
+  hosts: templatevmware
+  gather_facts: False
+  vars_files:
+    - variables-vault.yaml
+    - variables.yaml
+  tasks:
+
+  - name: Wait for system to become reachable over ssh
+    wait_for_connection:
+      delay: 5
+      sleep: 10
+      timeout: 1800
+
+  - name: Gather facts for first time
+    setup:
+

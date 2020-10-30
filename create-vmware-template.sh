@@ -9,7 +9,7 @@ run_playbooks () {
     PLAYBOOKS=("$@")
     for playbook in "${PLAYBOOKS[@]}"; do
         echo "Run playbook: ${playbook}"
-        if [[ "${playbook}" == "vm-hardening.yaml" || "${playbook}" == "vm-customize.yaml" ]]; then
+        if [ "${playbook}" == "vm-hardening.yaml" ]; then
             echo "run with hosts file"
             $ANSIBLE_PLAYBOOK --vault-password-file $VAULT_FILE -i hosts-templaterhv ${playbook}
         else
@@ -42,10 +42,10 @@ run_cis () {
     fi
 }
 
-PLAYBOOKS=(clean-ovirt.yaml satellite-ovirt.yaml ovirt.yaml vm-customize.yaml vm-hardening.yaml )
+PLAYBOOKS=(clean.yaml satellite.yaml ovirt.yaml vm-customize.yaml vm-hardening.yaml )
 run_playbooks "${PLAYBOOKS[@]}"
 
 run_cis
 
-PLAYBOOKS=(vm-cleanup.yml ovirt-make-template.yaml clean-ovirt.yaml)
+PLAYBOOKS=(vm-cleanup.yml ovirt-make-template.yaml clean.yaml)
 run_playbooks "${PLAYBOOKS[@]}"

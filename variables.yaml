@@ -92,6 +92,7 @@ packages_to_install:
   - bash-completion
   - tmux
   - vim-enhanced
+  - sudo
 # list of packages to install *only* on ovirt/rhv vm/template
 packages_to_install_rhv:
   - cloud-init
