@@ -1,5 +1,6 @@
 sat_cachetimeout: 6000
 sat_url_newhost: "{{ sat_server_url }}/api/hosts"
+# variables used on satellite
 template:
   name: templaterh8
   organization_name: "Lab SPA"
@@ -16,6 +17,7 @@ template:
   enabled: true
   provision_method: build
   managed: true
+# variables used on satellite
 template_vmware:
   name: templatevmwarerh8
   organization_name: "Lab SPA"
@@ -32,6 +34,7 @@ template_vmware:
   enabled: true
   provision_method: build
   managed: true
+# variables used to create vm/template on ovirt/rhv
 engine_template:
   name: "{{ template.name }}"
   templatename: "{{ template.name }}-1"
@@ -49,12 +52,50 @@ engine_template:
   nic_interface: virtio
   nic_mac_address: "{{ template.mac }}"
   nic_network: ovirtmgmt
+# variables used to create vm/template on vmware
+vmware_template:
+  name: "{{ template_vmware.name }}"
+  templatename: "{{ template_vmware.name }}-1"
+  hardware_memory_mb: 2048
+  hardware_num_cpus: 2
+  hardware_scsi: paravirtual
+  guest_id: rhel7_64Guest
+  folder: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          66306630336232353062333164636562353438663361343364633830613664626234353030623436
+          3664386265636161396531616431643834656564303061660a363964396561613234383263303062
+          62613864386634383930653863306265396239356166393731363539386465663565333364376537
+          3361373466373938630a376231313931343833633361356362646635396666306339626630326636
+          30353337306338323533346161396433646664376365363064383532386561323135383039363933
+          6666373031613938353766303436383766313337353061353264
+  datacenter: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          62353237323432636337613763656534333437646361313464353739383162303035323733653966
+          3830303763383236306365396536326630326236393462620a623464396264333030306336613666
+          36613230623236613330626161386561616236346130646366313666303234333330636131336633
+          6339663466396537330a386239663339623331623964623835343836346638663063363561306661
+          3933
+  disk_size_gb: 20
+  disk_type: thin
+  disk_datastore:
+  networks_name: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          61663130343638373636343230643930383534383937373431663738623938366639383637386639
+          3638616265646632656233396634313734356465616664390a326362393031336633386230663565
+          62623161613062333230613032643865643937363436646330363337316530373739343138653762
+          3931356239323966650a656562323634326361633562623062396263613364633730623466343237
+          3237
+  networks_mac: "{{ template_vmware.mac }}"
+  networks_device_type: "vmxnet3"
+# list of packages to install on all vm/template
 packages_to_install:
   - bash-completion
   - tmux
   - vim-enhanced
+# list of packages to install *only* on ovirt/rhv vm/template
 packages_to_install_rhv:
   - cloud-init
   - qemu-guest-agent
+# list of packages to install *only* on vmware vm/template
 packages_to_install_vmware:
   - open-vm-tools

@@ -42,10 +42,10 @@ run_cis () {
     fi
 }
 
-PLAYBOOKS=(clean.yaml satellite.yaml ovirt.yaml vm-customize.yaml vm-hardening.yaml )
+PLAYBOOKS=(clean.yaml satellite-ovirt.yaml ovirt.yaml vm-customize.yaml vm-hardening.yaml )
 run_playbooks "${PLAYBOOKS[@]}"
 
 run_cis
 
-PLAYBOOKS=(vm-cleanup.yml ovirt-make-template.yaml clean.yaml)
+PLAYBOOKS=(vm-cleanup.yml ovirt-make-template.yaml clean-ovirt.yaml)
 run_playbooks "${PLAYBOOKS[@]}"
