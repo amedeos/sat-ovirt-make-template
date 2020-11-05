@@ -5,7 +5,7 @@ template:
   name: templaterh8
   organization_name: "Lab SPA"
   location_name: "Italy"
-  hostgroup_id: 1
+  hostgroup_name: "Kickstart Host Group"
   ip: 192.168.201.219
   mac: 52:54:00:d3:26:0f
   host_parameters_attributes:
@@ -22,7 +22,7 @@ template_vmware:
   name: templatevmwarerh8
   organization_name: "Lab SPA"
   location_name: "Italy"
-  hostgroup_id: 1
+  hostgroup_name: "Kickstart Host Group"
   ip: 192.168.201.218
   mac: 52:54:00:d3:26:ff
   host_parameters_attributes:

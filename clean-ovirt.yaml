@@ -80,3 +80,8 @@
     when: json_response_rhv.json['results'][0]['mac'] is defined and json_response_rhv.json['results'][0]['mac'] == template.mac
     register: json_delete_rhv
 
+  - name: Delete inventory file - rhv
+    file:
+      path: hosts-templaterhv
+      state: absent
+

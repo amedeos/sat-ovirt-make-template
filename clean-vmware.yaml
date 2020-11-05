@@ -62,3 +62,7 @@
     when: json_response_vmware.json['results'][0]['mac'] is defined and json_response_vmware.json['results'][0]['mac'] == template_vmware.mac
     register: json_delete_vmware
 
+  - name: Delete inventory file - vmware
+    file:
+      path: hosts-templatevmware
+      state: absent
